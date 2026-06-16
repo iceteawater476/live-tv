@@ -3,165 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPTV Master - TV Edition</title>
+    <title>LiveShi - Pro TV</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        /* TV-Optimized invisible/sleek scrollbars */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
-        
-        /* Smooth scrolling for TV D-Pad navigation */
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
         html { scroll-behavior: smooth; }
-        
-        /* Prevent selection outline on mouse click, but keep it for keyboard/remote focus */
-        :focus:not(:focus-visible) { outline: none; box-shadow: none; transform: none; }
+        .focus-ring { @apply focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50; }
     </style>
 </head>
-<body class="bg-[#0a0a0a] text-gray-100 h-screen w-screen overflow-hidden font-sans flex select-none">
+<body class="bg-[#050505] text-gray-200 h-screen w-screen overflow-hidden font-sans flex select-none">
 
-    <!-- TV Sidebar: Settings & Filters -->
-    <aside class="w-80 md:w-96 bg-[#121212] border-r border-white/10 flex flex-col h-full flex-shrink-0 z-20 shadow-2xl">
+    <!-- Sidebar: Navigation & Filters -->
+    <aside class="w-72 md:w-80 bg-[#0a0a0a] border-r border-white/5 flex flex-col h-full flex-shrink-0 z-20 shadow-2xl">
         <!-- Logo Area -->
-        <div class="p-6 pb-4 border-b border-white/10 flex items-center gap-4">
-            <span class="text-4xl">📺</span>
+        <div class="p-6 border-b border-white/5 flex items-center gap-4">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 text-xl">📺</div>
             <div>
-                <h1 class="text-2xl font-black tracking-wider text-white uppercase">IPTV Master</h1>
-                <p class="text-xs text-gray-400 font-semibold tracking-widest">TV OS EDITION</p>
+                <h1 class="text-xl font-bold tracking-tight text-white">LiveShi</h1>
+                <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">TV Edition</p>
             </div>
         </div>
 
-        <!-- Scrollable Filters -->
-        <div class="flex-grow overflow-y-auto p-6 space-y-8">
+        <!-- Scrollable Navigation -->
+        <div class="flex-grow overflow-y-auto p-4 space-y-6">
             
-            <!-- Load Source -->
-            <section class="space-y-3">
-                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">1. Load Source</h2>
-                <input type="text" id="urlInput" placeholder="Enter M3U8 URL..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-500 transition-all text-lg" tabindex="0">
-                <div class="flex gap-2">
-                    <button id="fetchUrlBtn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-white focus:scale-105 transition-all shadow-lg" tabindex="0">
-                        Fetch URL
-                    </button>
-                    <label class="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-4 rounded-lg focus-within:ring-4 focus-within:ring-white focus-within:scale-105 transition-all text-center cursor-pointer shadow-lg">
-                        <span>Local File</span>
-                        <input type="file" id="fileInput" accept=".m3u,.m3u8,.txt" class="hidden" tabindex="0">
-                    </label>
-                </div>
-            </section>
-
-            <!-- Search -->
-            <section>
-                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">2. Search</h2>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 text-xl">🔍</span>
-                    <input type="text" id="searchInput" placeholder="Search channels..." class="w-full bg-white/5 border border-white/10 rounded-lg pl-12 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-500 transition-all text-lg" tabindex="0">
-                </div>
-            </section>
-
-            <!-- Tools -->
-            <section class="space-y-3">
-                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">3. Tools & Status</h2>
-                
-                <button id="testStreamsBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-white focus:scale-105 transition-all shadow-lg flex items-center justify-center gap-3 text-lg" tabindex="0">
-                    <span>📡</span> Test Playability (BD)
+            <!-- Settings Toggle -->
+            <div>
+                <button id="openSettingsBtn" class="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-semibold transition-all border border-white/5 focus-ring">
+                    <span class="text-xl">⚙️</span>
+                    <span>Settings & Provider</span>
                 </button>
-                
-                <div id="testProgress" class="hidden w-full bg-white/10 rounded-full h-2 overflow-hidden">
-                    <div id="testProgressBar" class="bg-indigo-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                </div>
-
-                <button id="filterWorkingBtn" class="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-white focus:scale-105 transition-all flex items-center justify-center gap-3 text-lg" tabindex="0">
-                    <span class="grayscale opacity-50" id="workingBtnIcon">🟢</span> Show Working Only
-                </button>
-            </section>
+            </div>
 
             <!-- Categories -->
             <section>
-                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">4. Categories</h2>
-                <div class="flex flex-wrap gap-2" id="categoryFilters">
+                <h2 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-3 px-2">Categories</h2>
+                <div class="flex flex-wrap gap-1.5" id="categoryFilters">
                     <!-- JS Injected -->
                 </div>
             </section>
 
             <!-- Regions -->
-            <section>
-                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">5. Regions</h2>
-                <div class="flex flex-wrap gap-2" id="regionFilters">
+            <section class="pb-6">
+                <h2 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-3 px-2">Regions</h2>
+                <div class="flex flex-wrap gap-1.5" id="regionFilters">
                     <!-- JS Injected -->
                 </div>
             </section>
-
-            <!-- Export -->
-            <section class="pb-8">
-                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">6. Export</h2>
-                <div class="flex gap-2">
-                    <button id="exportJsonBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-2 rounded-lg focus:outline-none focus:ring-4 focus:ring-white focus:scale-105 transition-all shadow-lg" tabindex="0">
-                        JSON
-                    </button>
-                    <button id="exportM3u8Btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-2 rounded-lg focus:outline-none focus:ring-4 focus:ring-white focus:scale-105 transition-all shadow-lg" tabindex="0">
-                        M3U8
-                    </button>
-                </div>
-            </section>
-
         </div>
     </aside>
 
-    <!-- Main TV Content Area -->
-    <main class="flex-1 flex flex-col h-full bg-[#0a0a0a] relative overflow-hidden">
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full bg-[#050505] relative overflow-hidden">
         
-        <!-- Large Video Player (Cinematic Header) -->
-        <div class="w-full bg-black flex-shrink-0 relative z-10 shadow-2xl border-b border-white/10" style="height: 45vh;">
-            <video id="videoPlayer" class="w-full h-full object-contain" controls></video>
+        <!-- Top Header: Search & Info -->
+        <header class="h-20 border-b border-white/5 flex items-center justify-between px-6 lg:px-10 bg-[#050505]/80 backdrop-blur-md z-30 sticky top-0 shrink-0">
+            <div class="relative w-full max-w-md">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search channels, categories, or regions..." class="w-full bg-[#111] border border-white/5 rounded-full pl-12 pr-4 py-2.5 text-sm text-white placeholder-gray-600 transition-all focus-ring shadow-inner">
+            </div>
+            <div class="hidden sm:flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+                <span id="channelCount" class="text-sm font-mono text-gray-400 font-medium tracking-wide">0 Channels</span>
+            </div>
+        </header>
+
+        <!-- Video Player (Cinematic) -->
+        <div class="w-full bg-black flex-shrink-0 relative shadow-[0_10px_40px_rgba(0,0,0,0.8)] border-b border-white/5" style="height: 38vh;">
+            <video id="videoPlayer" class="w-full h-full object-contain bg-black" controls></video>
             
-            <div id="playerOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm pointer-events-none transition-opacity duration-300">
-                <span class="text-6xl mb-4 drop-shadow-2xl opacity-80">🍿</span>
-                <h2 class="text-2xl font-bold tracking-widest text-white/80">SELECT A CHANNEL TO PLAY</h2>
+            <div id="playerOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm pointer-events-none transition-opacity duration-500">
+                <span class="text-5xl mb-4 opacity-50">🍿</span>
+                <h2 class="text-lg font-bold tracking-widest text-white/50 uppercase">Select a channel to play</h2>
             </div>
             
-            <!-- Now Playing Gradient Overlay -->
-            <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none">
-                <div class="flex items-end justify-between">
-                    <div>
-                        <span id="nowPlayingGroup" class="text-blue-400 font-bold tracking-wider text-sm uppercase mb-1 block drop-shadow-md">NO CHANNEL SELECTED</span>
-                        <h2 id="nowPlayingName" class="text-4xl font-black text-white drop-shadow-lg truncate max-w-3xl">Standby</h2>
-                    </div>
-                </div>
+            <!-- Now Playing Overlay -->
+            <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none">
+                <span id="nowPlayingGroup" class="text-blue-500 font-bold tracking-wider text-[10px] uppercase mb-1 block">NO CHANNEL SELECTED</span>
+                <h2 id="nowPlayingName" class="text-2xl lg:text-3xl font-black text-white truncate max-w-3xl">Standby</h2>
             </div>
         </div>
 
         <!-- Channel Grid Area -->
-        <div class="flex-1 overflow-y-auto p-6 md:p-8 relative">
-            <div class="flex justify-between items-end mb-6">
-                <h2 class="text-2xl font-bold text-white">Channel Lineup</h2>
-                <span id="channelCount" class="text-lg font-mono text-gray-400 bg-white/5 px-4 py-1 rounded-full border border-white/10">0 Channels</span>
-            </div>
-
-            <!-- Grid Container -->
-            <div id="channelGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 pb-20">
-                <div class="col-span-full text-center py-20 text-gray-500 text-xl font-medium">
-                    Please load an M3U playlist from the sidebar to begin.
+        <div class="flex-1 overflow-y-auto p-6 lg:p-10 relative">
+            <div id="channelGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 pb-12">
+                <div class="col-span-full text-center py-20 text-gray-600 text-sm font-medium animate-pulse">
+                    Initializing provider...
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- TV Export Modal -->
-    <div id="exportModal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden items-center justify-center z-50 p-8">
-        <div class="bg-[#121212] rounded-2xl border border-white/20 w-full max-w-5xl flex flex-col shadow-2xl h-[85vh] overflow-hidden transform scale-100 transition-transform">
-            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
-                <h3 id="exportModalTitle" class="text-2xl font-bold text-white">Exported Data</h3>
-                <button id="closeModalBtn" class="text-gray-400 hover:text-white focus:text-white focus:outline-none focus:ring-4 focus:ring-white rounded-full p-2 transition-all" tabindex="0">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <!-- Settings Overlay -->
+    <div id="settingsOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-[#0f0f0f] rounded-2xl border border-white/10 w-full max-w-md flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" id="settingsContent">
+            
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-white/5 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>⚙️</span> Settings & Tools
+                </h3>
+                <button id="closeSettingsBtn" class="text-gray-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+                    &times;
                 </button>
             </div>
-            <div class="p-6 flex-grow relative">
-                <textarea id="exportArea" class="w-full h-full bg-[#0a0a0a] text-emerald-400 font-mono text-lg p-6 rounded-xl border border-white/10 focus:outline-none focus:ring-4 focus:ring-blue-500 resize-none shadow-inner" spellcheck="false" tabindex="0"></textarea>
+            
+            <!-- Modal Body -->
+            <div class="p-6 space-y-8">
+                
+                <!-- 1. Load Source -->
+                <section>
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">1. Provider Source</h4>
+                    <!-- Default URL pre-filled here -->
+                    <input type="text" id="urlInput" value="https://raw.githubusercontent.com/imShakil/tvlink/refs/heads/main/iptv.m3u8" class="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-300 mb-3 focus-ring">
+                    <div class="flex gap-2">
+                        <button id="fetchUrlBtn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl shadow-lg transition-colors text-sm">
+                            Fetch Playlist
+                        </button>
+                        <label class="flex-1 bg-white/5 hover:bg-white/10 text-white font-semibold py-2.5 rounded-xl transition-colors text-center cursor-pointer border border-white/5 text-sm">
+                            <span>Local File</span>
+                            <input type="file" id="fileInput" accept=".m3u,.m3u8,.txt" class="hidden">
+                        </label>
+                    </div>
+                </section>
+
+                <!-- 2. Tools & Status -->
+                <section>
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">2. Tools & Status</h4>
+                    <div class="space-y-2">
+                        <button id="testStreamsBtn" class="w-full bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 border border-indigo-500/20 font-semibold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                            <span>📡</span> Test Playability (BD)
+                        </button>
+                        <div id="testProgress" class="hidden w-full bg-[#050505] rounded-full h-1.5 overflow-hidden border border-white/5">
+                            <div id="testProgressBar" class="bg-indigo-500 h-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <button id="filterWorkingBtn" class="w-full bg-[#050505] border border-white/10 hover:border-white/20 text-gray-400 font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm">
+                            <div class="w-2 h-2 rounded-full bg-gray-600" id="workingBtnIcon"></div> Show Working Only
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 3. Export -->
+                <section>
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">3. Export Data</h4>
+                    <div class="flex gap-2">
+                        <button id="exportJsonBtn" class="flex-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/20 font-semibold py-2.5 rounded-xl transition-colors text-sm">
+                            Export JSON
+                        </button>
+                        <button id="exportM3u8Btn" class="flex-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/20 font-semibold py-2.5 rounded-xl transition-colors text-sm">
+                            Export M3U8
+                        </button>
+                    </div>
+                </section>
             </div>
-            <div class="p-6 border-t border-white/10 flex justify-end bg-white/5">
-                <button id="copyExportBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-lg focus:outline-none focus:ring-4 focus:ring-white focus:scale-105 transition-all shadow-lg" tabindex="0">
+        </div>
+    </div>
+
+    <!-- Export View Modal -->
+    <div id="exportModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-[60] p-6">
+        <div class="bg-[#0f0f0f] rounded-2xl border border-white/10 w-full max-w-4xl flex flex-col shadow-2xl h-[70vh]">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center">
+                <h3 id="exportModalTitle" class="text-sm font-bold text-white uppercase tracking-widest">Exported Data</h3>
+                <button id="closeExportBtn" class="text-gray-500 hover:text-white">&times;</button>
+            </div>
+            <div class="p-4 flex-grow relative bg-[#050505]">
+                <textarea id="exportArea" class="w-full h-full bg-transparent text-emerald-400 font-mono text-sm border-none focus:outline-none resize-none" spellcheck="false"></textarea>
+            </div>
+            <div class="p-4 border-t border-white/5 flex justify-end">
+                <button id="copyExportBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-semibold text-sm transition-colors">
                     Copy to Clipboard
                 </button>
             </div>
@@ -178,28 +191,23 @@
         let isTesting = false;
         let hls = null;
 
-        // Configuration (Expanded for TV Edition)
+        // Configuration
         const filterConfig = {
             categories: [
-                { id: 'sports', label: 'Sports 🏃', keywords: ['sport', 'espn', 'tnt', 'beinsports', 'fox sports', 'arena'] },
-                { id: 'motorsports', label: 'Motorsports 🏎️', keywords: ['motor', 'racing', 'f1', 'formula', 'speed'] },
-                { id: 'movie', label: 'Movies 🎬', keywords: ['movie', 'film', 'cinema', 'hbo', 'star movies', 'cinemax'] },
-                { id: 'news', label: 'News 📰', keywords: ['news', 'bbc', 'cnn', 'al jazeera', 'sky news', 'fox news'] },
-                { id: 'kids', label: 'Kids 🧸', keywords: ['kid', 'cartoon', 'animation', 'disney', 'nickelodeon', 'cn'] },
-                { id: 'music', label: 'Music 🎵', keywords: ['music', 'mtv', 'vh1', 'concert', 'pop', 'rock'] },
-                { id: 'doc', label: 'Doc/Nature 🌍', keywords: ['doc', 'nature', 'discovery', 'national geographic', 'history', 'animal'] },
-                { id: 'entertainment', label: 'Entertainment 🎭', keywords: ['entertainment', 'comedy', 'show', 'life', 'tlc'] },
-                { id: 'religion', label: 'Religion 🕌', keywords: ['religion', 'islam', 'quran', 'peace tv', 'christian', 'faith'] }
+                { id: 'sports', label: 'Sports', keywords: ['sport', 'espn', 'tnt', 'bein', 'fox sports', 'arena', 'tsports'] },
+                { id: 'movie', label: 'Movies', keywords: ['movie', 'film', 'cinema', 'hbo', 'star movies', 'cinemax'] },
+                { id: 'news', label: 'News', keywords: ['news', 'bbc', 'cnn', 'al jazeera', 'somoy', 'jamuna'] },
+                { id: 'kids', label: 'Kids', keywords: ['kid', 'cartoon', 'animation', 'disney', 'nickelodeon', 'cn'] },
+                { id: 'music', label: 'Music', keywords: ['music', 'mtv', 'vh1', 'concert'] },
+                { id: 'doc', label: 'Doc/Nature', keywords: ['doc', 'nature', 'discovery', 'national geographic', 'animal'] },
+                { id: 'entertainment', label: 'Entertainment', keywords: ['entertainment', 'comedy', 'show', 'life', 'colors'] },
+                { id: 'religion', label: 'Religion', keywords: ['religion', 'islam', 'quran', 'peace tv', 'faith'] }
             ],
             regions: [
-                { id: 'bd', label: 'Bangladesh 🇧🇩', keywords: ['bangladesh', 'bd', 'bengali', 'dhaka', 'somoy', 'jamuna'] },
-                { id: 'in', label: 'India 🇮🇳', keywords: ['india', 'in', 'hindi', 'tamil', 'telugu', 'star', 'colors'] },
-                { id: 'pk', label: 'Pakistan 🇵🇰', keywords: ['pakistan', 'pk', 'urdu', 'ary', 'geo', 'hum'] },
-                { id: 'us', label: 'USA 🇺🇸', keywords: ['usa', 'us', 'united states', 'american'] },
-                { id: 'uk', label: 'UK 🇬🇧', keywords: ['uk', 'united kingdom', 'british', 'bbc'] },
-                { id: 'me', label: 'Middle East 🐪', keywords: ['arabic', 'arab', 'middle east', 'uae', 'saudi', 'mbc', 'dubai'] },
-                { id: 'eu', label: 'Europe 🇪🇺', keywords: ['europe', 'eu', 'france', 'germany', 'italy', 'spain'] },
-                { id: 'latam', label: 'LatAm 🌎', keywords: ['latino', 'spanish', 'argentina', 'mexico', 'chile', 'colombia'] }
+                { id: 'bd', label: 'Bangladesh', keywords: ['bangladesh', 'bd', 'bengali', 'dhaka'] },
+                { id: 'in', label: 'India', keywords: ['india', 'in', 'hindi', 'tamil', 'telugu'] },
+                { id: 'pk', label: 'Pakistan', keywords: ['pakistan', 'pk', 'urdu', 'ary', 'geo'] },
+                { id: 'intl', label: 'International', keywords: ['usa', 'uk', 'europe', 'arab', 'middle east'] }
             ]
         };
 
@@ -222,36 +230,58 @@
             testProgressBar: document.getElementById('testProgressBar'),
             filterWorkingBtn: document.getElementById('filterWorkingBtn'),
             workingBtnIcon: document.getElementById('workingBtnIcon'),
+            settingsOverlay: document.getElementById('settingsOverlay'),
+            settingsContent: document.getElementById('settingsContent'),
+            openSettingsBtn: document.getElementById('openSettingsBtn'),
+            closeSettingsBtn: document.getElementById('closeSettingsBtn'),
             exportJsonBtn: document.getElementById('exportJsonBtn'),
             exportM3u8Btn: document.getElementById('exportM3u8Btn'),
             exportModal: document.getElementById('exportModal'),
             exportModalTitle: document.getElementById('exportModalTitle'),
             exportArea: document.getElementById('exportArea'),
-            closeModalBtn: document.getElementById('closeModalBtn'),
+            closeExportBtn: document.getElementById('closeExportBtn'),
             copyExportBtn: document.getElementById('copyExportBtn')
         };
 
-        // Initialize UI
         function initUI() {
-            // Build Filter Buttons (TV Style)
+            // Settings Modal Logic
+            const openSettings = () => {
+                DOM.settingsOverlay.classList.remove('hidden');
+                DOM.settingsOverlay.classList.add('flex');
+                setTimeout(() => {
+                    DOM.settingsOverlay.classList.remove('opacity-0');
+                    DOM.settingsContent.classList.remove('scale-95');
+                }, 10);
+            };
+            const closeSettings = () => {
+                DOM.settingsOverlay.classList.add('opacity-0');
+                DOM.settingsContent.classList.add('scale-95');
+                setTimeout(() => {
+                    DOM.settingsOverlay.classList.add('hidden');
+                    DOM.settingsOverlay.classList.remove('flex');
+                }, 300);
+            };
+
+            DOM.openSettingsBtn.addEventListener('click', openSettings);
+            DOM.closeSettingsBtn.addEventListener('click', closeSettings);
+            DOM.settingsOverlay.addEventListener('click', (e) => {
+                if (e.target === DOM.settingsOverlay) closeSettings();
+            });
+
+            // Build Sidebar Filters
             filterConfig.categories.forEach(cat => {
-                const btn = createTVFilterButton(cat.label, () => toggleFilter(activeCategories, cat.id, btn));
+                const btn = createSidebarFilter(cat.label, () => toggleFilter(activeCategories, cat.id, btn));
                 DOM.categoryFilters.appendChild(btn);
             });
 
             filterConfig.regions.forEach(reg => {
-                const btn = createTVFilterButton(reg.label, () => toggleFilter(activeRegions, reg.id, btn));
+                const btn = createSidebarFilter(reg.label, () => toggleFilter(activeRegions, reg.id, btn));
                 DOM.regionFilters.appendChild(btn);
             });
 
             DOM.fileInput.addEventListener('change', handleFileUpload);
             DOM.fetchUrlBtn.addEventListener('click', handleUrlFetch);
             
-            // Allow 'Enter' key to trigger fetch
-            DOM.urlInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleUrlFetch();
-            });
-
             DOM.searchInput.addEventListener('input', (e) => {
                 searchQuery = e.target.value.toLowerCase();
                 renderChannels();
@@ -260,30 +290,34 @@
             DOM.filterWorkingBtn.addEventListener('click', () => {
                 filterWorkingOnly = !filterWorkingOnly;
                 if(filterWorkingOnly) {
-                    DOM.filterWorkingBtn.classList.replace('bg-white/5', 'bg-emerald-600/20');
-                    DOM.filterWorkingBtn.classList.replace('border-white/10', 'border-emerald-500');
-                    DOM.workingBtnIcon.classList.remove('grayscale', 'opacity-50');
+                    DOM.filterWorkingBtn.classList.replace('text-gray-400', 'text-white');
+                    DOM.filterWorkingBtn.classList.replace('border-white/10', 'border-emerald-500/50');
+                    DOM.workingBtnIcon.classList.replace('bg-gray-600', 'bg-emerald-500');
+                    DOM.workingBtnIcon.classList.add('shadow-[0_0_8px_rgba(16,185,129,0.8)]');
                 } else {
-                    DOM.filterWorkingBtn.classList.replace('bg-emerald-600/20', 'bg-white/5');
-                    DOM.filterWorkingBtn.classList.replace('border-emerald-500', 'border-white/10');
-                    DOM.workingBtnIcon.classList.add('grayscale', 'opacity-50');
+                    DOM.filterWorkingBtn.classList.replace('text-white', 'text-gray-400');
+                    DOM.filterWorkingBtn.classList.replace('border-emerald-500/50', 'border-white/10');
+                    DOM.workingBtnIcon.classList.replace('bg-emerald-500', 'bg-gray-600');
+                    DOM.workingBtnIcon.classList.remove('shadow-[0_0_8px_rgba(16,185,129,0.8)]');
                 }
                 renderChannels();
             });
 
             DOM.testStreamsBtn.addEventListener('click', runPlayabilityTest);
 
-            DOM.exportJsonBtn.addEventListener('click', () => generateExport('json'));
-            DOM.exportM3u8Btn.addEventListener('click', () => generateExport('m3u8'));
-            DOM.closeModalBtn.addEventListener('click', () => DOM.exportModal.classList.replace('flex', 'hidden'));
+            DOM.exportJsonBtn.addEventListener('click', () => { closeSettings(); generateExport('json'); });
+            DOM.exportM3u8Btn.addEventListener('click', () => { closeSettings(); generateExport('m3u8'); });
+            DOM.closeExportBtn.addEventListener('click', () => DOM.exportModal.classList.replace('flex', 'hidden'));
             DOM.copyExportBtn.addEventListener('click', copyExport);
+            
+            // Auto-fetch default URL on load
+            DOM.fetchUrlBtn.click();
         }
 
-        function createTVFilterButton(label, onClick) {
+        function createSidebarFilter(label, onClick) {
             const btn = document.createElement('button');
-            btn.className = "px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg text-sm font-bold transition-all border border-white/10 focus:outline-none focus:ring-4 focus:ring-white focus:scale-105";
+            btn.className = "px-3 py-1.5 bg-[#111] hover:bg-[#222] text-gray-400 rounded-lg text-xs font-semibold transition-all border border-white/5 focus-ring";
             btn.textContent = label;
-            btn.tabIndex = 0;
             btn.addEventListener('click', onClick);
             return btn;
         }
@@ -291,12 +325,12 @@
         function toggleFilter(set, id, btnElement) {
             if (set.has(id)) {
                 set.delete(id);
-                btnElement.classList.remove('bg-blue-600', 'text-white', 'border-blue-500');
-                btnElement.classList.add('bg-white/5', 'text-gray-300', 'border-white/10');
+                btnElement.classList.replace('bg-white', 'bg-[#111]');
+                btnElement.classList.replace('text-black', 'text-gray-400');
             } else {
                 set.add(id);
-                btnElement.classList.remove('bg-white/5', 'text-gray-300', 'border-white/10');
-                btnElement.classList.add('bg-blue-600', 'text-white', 'border-blue-500');
+                btnElement.classList.replace('bg-[#111]', 'bg-white');
+                btnElement.classList.replace('text-gray-400', 'text-black');
             }
             renderChannels();
         }
@@ -318,7 +352,7 @@
 
                     current = {
                         name: name.replace(/"/g, '\\"'),
-                        group: groupMatch ? groupMatch[1] : 'Uncategorized',
+                        group: groupMatch ? groupMatch[1] : 'General',
                         country: countryMatch ? countryMatch[1] : '',
                         logo: logoMatch ? logoMatch[1] : null,
                         rawSearchString: `${name} ${groupMatch ? groupMatch[1] : ''} ${countryMatch ? countryMatch[1] : ''}`.toLowerCase(),
@@ -335,21 +369,24 @@
 
         async function handleUrlFetch() {
             const url = DOM.urlInput.value.trim();
-            if (!url) return alert('Please enter a URL');
+            if (!url) return;
             
+            const originalText = DOM.fetchUrlBtn.textContent;
             DOM.fetchUrlBtn.textContent = 'Loading...';
-            DOM.channelGrid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 text-2xl font-bold animate-pulse">Fetching & Parsing...</div>';
+            DOM.channelGrid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500 text-sm font-medium animate-pulse">Fetching Playlist...</div>';
 
             try {
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.text();
                 allChannels = parseM3U8(data);
+                
+                // If it's the auto-load, silently close settings if they happened to open it immediately
                 renderChannels();
             } catch (err) {
-                DOM.channelGrid.innerHTML = `<div class="col-span-full text-center py-20 text-red-400 text-xl"><span class="text-4xl block mb-4">⚠️</span> Error: ${err.message}.<br><br>Tip: If fetching fails due to CORS, download the file to your computer and use the <b>Local File</b> button instead.</div>`;
+                DOM.channelGrid.innerHTML = `<div class="col-span-full text-center py-20 text-red-500 text-sm bg-red-500/10 rounded-xl border border-red-500/20 max-w-lg mx-auto">Error: ${err.message}.<br><br>Use the Settings to upload a local file if URLs are blocked.</div>`;
             } finally {
-                DOM.fetchUrlBtn.textContent = 'Fetch URL';
+                DOM.fetchUrlBtn.textContent = originalText;
             }
         }
 
@@ -358,12 +395,14 @@
             if (!file) return;
 
             const reader = new FileReader();
-            DOM.channelGrid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-400 text-2xl font-bold animate-pulse">Reading Local File...</div>';
+            DOM.channelGrid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500 text-sm font-medium animate-pulse">Parsing File...</div>';
             
             reader.onload = function(event) {
                 const data = event.target.result;
                 allChannels = parseM3U8(data);
                 renderChannels();
+                // Close settings overlay automatically after upload
+                DOM.closeSettingsBtn.click(); 
             };
             reader.readAsText(file);
         }
@@ -407,56 +446,47 @@
             DOM.channelGrid.innerHTML = '';
 
             if (filtered.length === 0) {
-                DOM.channelGrid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500 text-xl font-medium">No channels match your current filters.</div>';
+                DOM.channelGrid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-600 text-sm font-medium">No channels match criteria.</div>';
                 return;
             }
 
             const fragment = document.createDocumentFragment();
-            const displayLimit = Math.min(filtered.length, 500); // Grid renders are heavier, limit to 500
+            const displayLimit = Math.min(filtered.length, 500); 
 
             for (let i = 0; i < displayLimit; i++) {
                 const ch = filtered[i];
                 
-                // TV Card Design
+                // Clean Card Design
                 const btn = document.createElement('button');
-                btn.className = "group relative flex flex-col items-center justify-center p-4 bg-[#1a1a1a] rounded-xl border border-white/5 hover:border-white/30 hover:bg-[#222] focus:border-white focus:ring-4 focus:ring-white/50 focus:scale-105 transition-all aspect-video outline-none shadow-lg overflow-hidden";
-                btn.tabIndex = 0;
-
-                // Status Indicator
-                let statusRing = '';
-                let statusDot = '';
+                btn.className = "group relative flex flex-col items-center justify-center p-3 bg-[#0a0a0a] rounded-xl border border-white/5 hover:border-white/20 hover:bg-[#111] focus-ring transition-all aspect-[4/3] outline-none overflow-hidden";
+                
+                let statusIndicator = '';
                 if (ch.status === 'working') {
-                    statusRing = 'ring-2 ring-emerald-500 border-emerald-500';
-                    statusDot = '<div class="absolute top-3 right-3 w-3 h-3 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] z-10"></div>';
+                    statusIndicator = '<div class="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] z-10"></div>';
+                    btn.classList.add('border-emerald-500/30');
                 } else if (ch.status === 'error') {
-                    statusRing = 'opacity-50 grayscale border-red-900';
-                    statusDot = '<div class="absolute top-3 right-3 w-3 h-3 bg-red-600 rounded-full z-10"></div>';
+                    statusIndicator = '<div class="absolute top-2 right-2 w-2 h-2 bg-red-600/50 rounded-full z-10"></div>';
+                    btn.classList.add('opacity-50', 'grayscale');
                 }
                 
-                if(statusRing) btn.className += ` ${statusRing}`;
-
                 btn.onclick = () => {
                     playStream(ch.url, ch.name, ch.group);
-                    // Scroll back to top to view player easily
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 };
 
                 const icon = getEmojiForGroup(ch.group);
                 
                 btn.innerHTML = `
-                    ${statusDot}
-                    <div class="flex-grow flex items-center justify-center w-full mb-3 z-0 relative">
+                    ${statusIndicator}
+                    <div class="flex-grow flex items-center justify-center w-full mb-2 z-0">
                         ${ch.logo 
-                            ? `<img src="${ch.logo}" class="max-h-16 max-w-[80%] object-contain drop-shadow-md transition-transform group-hover:scale-110 group-focus:scale-110" onerror="this.outerHTML='<span class=\\'text-5xl opacity-80\\'>${icon}</span>'">` 
-                            : `<span class="text-5xl opacity-80 transition-transform group-hover:scale-110 group-focus:scale-110">${icon}</span>`
+                            ? `<img src="${ch.logo}" class="max-h-12 max-w-[70%] object-contain opacity-90 group-hover:opacity-100 transition-opacity" onerror="this.outerHTML='<span class=\\'text-3xl opacity-50\\'>${icon}</span>'">` 
+                            : `<span class="text-3xl opacity-50">${icon}</span>`
                         }
                     </div>
-                    <div class="w-full text-center mt-auto z-10 bg-gradient-to-t from-[#1a1a1a] pt-2">
-                        <h3 class="text-white font-bold text-sm md:text-base truncate drop-shadow-md w-full px-2">${ch.name}</h3>
-                        <div class="flex justify-center items-center gap-2 mt-1">
-                            ${ch.country ? `<span class="text-[10px] text-gray-400 border border-gray-600 px-1 rounded uppercase tracking-wider">${ch.country}</span>` : ''}
-                            <span class="text-xs text-blue-400 font-medium truncate max-w-[60%]">${ch.group}</span>
-                        </div>
+                    <div class="w-full text-center mt-auto z-10">
+                        <h3 class="text-gray-200 font-semibold text-xs truncate w-full px-1">${ch.name}</h3>
+                        <p class="text-[10px] text-gray-500 font-medium truncate mt-0.5">${ch.group}</p>
                     </div>
                 `;
                 fragment.appendChild(btn);
@@ -464,28 +494,27 @@
             
             if(filtered.length > 500) {
                 const warning = document.createElement('div');
-                warning.className = "col-span-full text-center py-8 text-sm text-amber-500 bg-amber-500/10 rounded-xl border border-amber-500/20";
-                warning.textContent = `Showing 500 of ${filtered.length} results. Use filters or search to narrow down to avoid TV lag.`;
+                warning.className = "col-span-full text-center py-6 text-xs text-amber-500/80";
+                warning.textContent = `Showing 500 of ${filtered.length} results. Use filters to narrow down.`;
                 fragment.appendChild(warning);
             }
 
             DOM.channelGrid.appendChild(fragment);
         }
 
-        // --- Geoblock / Playability Tester ---
         async function runPlayabilityTest() {
             if (isTesting) return;
             const filtered = getFilteredChannels();
-            
             if (filtered.length === 0) return alert("No channels to test.");
-            if (filtered.length > 300) {
-                const proceed = confirm(`You are about to test ${filtered.length} channels. This might take a while on a TV browser. Proceed?`);
+            
+            if (filtered.length > 200) {
+                const proceed = confirm(`Testing ${filtered.length} channels locally might take time. Proceed?`);
                 if (!proceed) return;
             }
 
             isTesting = true;
-            DOM.testStreamsBtn.innerHTML = `<span class="animate-spin">⏳</span> Testing...`;
-            DOM.testStreamsBtn.classList.replace('bg-indigo-600', 'bg-gray-600');
+            DOM.testStreamsBtn.innerHTML = `<span class="animate-pulse">⏳</span> Testing...`;
+            DOM.testStreamsBtn.classList.replace('text-indigo-400', 'text-gray-400');
             DOM.testProgress.classList.remove('hidden');
             
             let completed = 0;
@@ -493,7 +522,6 @@
             const testStream = (channel) => {
                 return new Promise((resolve) => {
                     if (!Hls.isSupported()) return resolve(); 
-                    
                     const hlsTest = new Hls({ debug: false, maxMaxBufferLength: 1, maxBufferLength: 1 });
                     
                     const timeout = setTimeout(() => {
@@ -517,7 +545,6 @@
                             resolve();
                         }
                     });
-
                     hlsTest.loadSource(channel.url);
                 });
             };
@@ -530,77 +557,67 @@
                 completed += chunk.length;
                 const percent = Math.min(100, Math.round((completed / filtered.length) * 100));
                 DOM.testProgressBar.style.width = `${percent}%`;
-                
                 if (i % 15 === 0) renderChannels(); 
             }
 
             renderChannels();
             isTesting = false;
             DOM.testStreamsBtn.innerHTML = `<span>✔️</span> Test Complete!`;
-            DOM.testStreamsBtn.classList.replace('bg-gray-600', 'bg-emerald-600');
+            DOM.testStreamsBtn.classList.replace('text-gray-400', 'text-emerald-400');
             
             setTimeout(() => {
                 DOM.testProgress.classList.add('hidden');
                 DOM.testProgressBar.style.width = `0%`;
                 DOM.testStreamsBtn.innerHTML = `<span>📡</span> Test Playability (BD)`;
-                DOM.testStreamsBtn.classList.replace('bg-emerald-600', 'bg-indigo-600');
-            }, 4000);
+                DOM.testStreamsBtn.classList.replace('text-emerald-400', 'text-indigo-400');
+            }, 3000);
         }
 
-        // --- Player ---
         function playStream(url, name, group) {
             DOM.playerOverlay.style.opacity = '0';
             DOM.nowPlayingName.textContent = name;
             DOM.nowPlayingGroup.textContent = group || 'Unknown Category';
 
-            if (hls) {
-                hls.destroy();
-            }
+            if (hls) hls.destroy();
 
             if (Hls.isSupported()) {
                 hls = new Hls();
                 hls.loadSource(url);
                 hls.attachMedia(DOM.videoPlayer);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     DOM.videoPlayer.play().catch(e => console.log("Autoplay prevented", e));
                 });
-                hls.on(Hls.Events.ERROR, function (event, data) {
+                hls.on(Hls.Events.ERROR, (event, data) => {
                     if (data.fatal) {
-                        console.error('HLS error:', data);
-                        DOM.nowPlayingName.textContent = "Error playing stream (Geoblocked/Offline)";
+                        DOM.nowPlayingName.textContent = "Error: Stream Offline / Geoblocked";
                         DOM.nowPlayingName.classList.add('text-red-500');
                     }
                 });
             } 
             else if (DOM.videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                 DOM.videoPlayer.src = url;
-                DOM.videoPlayer.addEventListener('loadedmetadata', function() {
-                    DOM.videoPlayer.play();
-                });
+                DOM.videoPlayer.addEventListener('loadedmetadata', () => DOM.videoPlayer.play());
             }
         }
 
-        // --- Exports ---
         function getEmojiForGroup(group) {
             const g = (group || '').toUpperCase();
-            if (g.includes('SPORT')) return '🏃';
-            if (g.includes('MOTOR') || g.includes('F1')) return '🏎️';
+            if (g.includes('SPORT') || g.includes('TSPORT')) return '🏃';
             if (g.includes('NEWS')) return '📰';
             if (g.includes('MOVIE') || g.includes('FILM')) return '🎬';
-            if (g.includes('KID') || g.includes('CHILD')) return '🧸';
+            if (g.includes('KID')) return '🧸';
             if (g.includes('MUSIC')) return '🎵';
-            if (g.includes('DOC') || g.includes('NATURE')) return '🌍';
+            if (g.includes('DOC')) return '🌍';
             if (g.includes('RELIGION')) return '🕌';
-            if (g.includes('COMEDY') || g.includes('ENTERTAIN')) return '🎭';
             return '📺';
         }
 
         function generateExport(format) {
             const filtered = getFilteredChannels();
-            if (filtered.length === 0) return alert("No channels to export. Please adjust filters.");
+            if (filtered.length === 0) return alert("No channels to export.");
 
             if (format === 'json') {
-                DOM.exportModalTitle.textContent = "Exported JSON Data";
+                DOM.exportModalTitle.textContent = "JSON Payload";
                 const jsonStrings = filtered.map(ch => {
                     const icon = getEmojiForGroup(ch.group);
                     return `{"name":"${ch.name}", "url":"${ch.url}", "icon":"${icon}", "group":"${ch.group}"}`;
@@ -608,7 +625,7 @@
                 DOM.exportArea.value = jsonStrings.join(',\n') + (jsonStrings.length > 0 ? ',' : '');
             } 
             else if (format === 'm3u8') {
-                DOM.exportModalTitle.textContent = "Exported M3U8 Playlist";
+                DOM.exportModalTitle.textContent = "M3U8 Playlist";
                 let m3u8Content = "#EXTM3U\n";
                 filtered.forEach(ch => {
                     m3u8Content += `#EXTINF:-1 group-title="${ch.group}" tvg-country="${ch.country}" tvg-logo="${ch.logo || ''}",${ch.name}\n${ch.url}\n`;
@@ -617,28 +634,22 @@
             }
 
             DOM.exportModal.classList.replace('hidden', 'flex');
-            // Auto focus the close button for easy TV dismissal
-            setTimeout(() => DOM.closeModalBtn.focus(), 100);
         }
 
         function copyExport() {
             DOM.exportArea.select();
             document.execCommand('copy');
-            
             const originalText = DOM.copyExportBtn.textContent;
-            DOM.copyExportBtn.textContent = 'Copied successfully!';
+            DOM.copyExportBtn.textContent = 'Copied!';
             DOM.copyExportBtn.classList.replace('bg-blue-600', 'bg-emerald-600');
-            DOM.copyExportBtn.classList.replace('hover:bg-blue-500', 'hover:bg-emerald-500');
-            
             setTimeout(() => {
                 DOM.copyExportBtn.textContent = originalText;
                 DOM.copyExportBtn.classList.replace('bg-emerald-600', 'bg-blue-600');
-                DOM.copyExportBtn.classList.replace('hover:bg-emerald-500', 'hover:bg-blue-500');
-            }, 2500);
+            }, 2000);
         }
 
-        // Initialize App
-        initUI();
+        // Boot
+        window.addEventListener('DOMContentLoaded', initUI);
 
     </script>
 </body>
